@@ -22,8 +22,9 @@ function getPageFromHash() {
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a");
   if (!a) return;
-  const tab = a.closest("[data-page]");
-  const pageLink = a.closest("[data-page-link]");
+
+  const tab = a.closest("a[data-page]");
+  const pageLink = a.closest("a[data-page-link]");
 
   if (tab) {
     e.preventDefault();
@@ -38,8 +39,5 @@ document.addEventListener("click", (e) => {
   }
 });
 
-window.addEventListener("hashchange", () => {
-  setActive(getPageFromHash());
-});
 
 setActive(getPageFromHash());
