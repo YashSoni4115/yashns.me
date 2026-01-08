@@ -1,0 +1,142 @@
+/* Panels */
+.panel{
+  padding:12px;
+  border:1px solid #808080;
+  box-shadow: inset 1px 1px 0 #fff;
+  background:#fdfdfd;
+  margin:12px 0;
+}
+
+.two-col{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+}
+@media (max-width: 720px){
+  .two-col{ grid-template-columns: 1fr; }
+}
+
+.list{ margin:8px 0 0 18px; }
+
+/* Quick picks */
+.quick-picks{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:10px;
+}
+@media (max-width: 860px){
+  .quick-picks{ grid-template-columns: 1fr; }
+}
+.quick-card{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px;
+  border:1px solid #808080;
+  box-shadow: inset 1px 1px 0 #fff;
+  background:#fdfdfd;
+  text-decoration:none;
+  color:#000;
+}
+.quick-card img{
+  width:36px;
+  height:36px;
+  image-rendering: pixelated;
+}
+.quick-title{ font-weight:700; font-size:13px; }
+.quick-sub{ font-size:12px; color:#333; }
+
+/* Projects list */
+.project-list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.project-item{
+  display:flex;
+  gap:14px;
+  padding:10px;
+  border:1px solid #808080;
+  box-shadow: inset 1px 1px 0 #fff;
+  background:#fdfdfd;
+}
+.project-item img{
+  width:64px;
+  height:64px;
+  image-rendering: pixelated;
+}
+.project-meta h3{
+  margin:0 0 4px 0;
+  font-size:15px;
+}
+.project-meta p{
+  margin:0 0 4px 0;
+  font-size:13px;
+}
+.project-meta .tech{
+  font-size:12px;
+  color:#333;
+}
+.links a{
+  font-size:12px;
+  margin-right:10px;
+}
+
+/* Carousel */
+.carousel{
+  display:grid;
+  grid-template-columns: 40px 1fr 40px;
+  gap:10px;
+  align-items:center;
+  margin-top:10px;
+}
+.carousel-frame{
+  margin:0;
+  border:1px solid #808080;
+  box-shadow: inset 1px 1px 0 #fff;
+  background:#fff;
+  padding:10px;
+}
+.carousel-img{
+  width:100%;
+  height:auto;
+  max-height:420px;
+  object-fit:cover;
+  display:block;
+  border:1px solid #c9c9c9;
+}
+.carousel-cap{
+  margin:8px 0 0 0;
+  font-size:12px;
+  color:#333;
+}
+.carousel-btn{
+  width:40px;
+  height:40px;
+  border:1px solid #404040;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  background:#c0c0c0;
+  cursor:pointer;
+  font-size:14px;
+}
+.carousel-btn:active{
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #808080;
+}
+.carousel-dots{
+  grid-column: 1 / -1;
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  margin-top:8px;
+}
+.carousel-dot{
+  width:10px;
+  height:10px;
+  border:1px solid #404040;
+  background:#c0c0c0;
+  box-shadow: inset 1px 1px 0 #fff;
+  cursor:pointer;
+}
+.carousel-dot.is-active{
+  background:#0a246a;
+}

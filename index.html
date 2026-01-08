@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yash Soni - Home</title>
+  <link rel="manifest" href="assets/icons/site.webmanifest" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+</head>
+<body class="desktop">
+  <main class="window" role="application" aria-label="Yash Soni portfolio window">
+    <header class="titlebar">
+      <div class="title-left">
+        <span class="title-icon" aria-hidden="true"></span>
+        <span class="title-text">Yash Soni - Home</span>
+      </div>
+      <div class="title-controls" aria-hidden="true">
+        <button class="ctrl min" tabindex="-1" title="Minimize"></button>
+        <button class="ctrl max" tabindex="-1" title="Maximize"></button>
+        <button class="ctrl close" tabindex="-1" title="Close"></button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Site sections">
+      <a class="tab is-active" href="#home" data-page="home">Home</a>
+      <a class="tab" href="#about" data-page="about">About</a>
+      <a class="tab" href="#projects" data-page="projects">Projects</a>
+      <a class="tab" href="#extras" data-page="extras">Extras</a>
+      <a class="tab" href="#contact" data-page="contact">Contact</a>
+    </nav>
+
+    <section class="client">
+      <div class="client-inner">
+        <!-- HOME -->
+        <section class="page is-active" id="home" data-page="home">
+          <h1>Hi!</h1>
+          <hr />
+
+          <div class="intro">
+            <img class="avatar" src="assets/images/headshot.jpg" alt="Photo of Yash Soni" />
+            <div class="intro-text">
+              <p>
+                I'm <strong>Yash Soni</strong>. I build data and software projects ranging from fraud detection
+                and analytics dashboards to automation tools and games.
+              </p>
+
+              <ul class="links">
+                <li><span class="bullet">◆</span> GitHub: <a href="https://github.com/YashSoni4115" target="_blank" rel="noreferrer">YashSoni4115</a></li>
+                <li><span class="bullet">◇</span> LinkedIn: <a href="https://www.linkedin.com/in/yash4115/" target="_blank" rel="noreferrer">yash4115</a></li>
+                <li><span class="bullet">◻</span> Email: <a href="mailto:yashsonig@gmail.com">yashsonig@gmail.com</a></li>
+                <li><span class="bullet">▣</span> Resume: <a href="resume/resume.pdf" target="_blank" rel="noreferrer">resume.pdf</a></li>
+              </ul>
+
+              <p class="small">
+                Explore my <a href="#projects" data-page-link="projects">projects</a>, or check out some
+                <a href="#extras" data-page-link="extras">photos</a> and fun stuff.
+              </p>
+            </div>
+          </div>
+
+          <h2>Quick picks</h2>
+          <div class="quick-picks">
+            <a class="quick-card" href="https://github.com/YashSoni4115/CreditCard-Fraud-Detection" target="_blank" rel="noreferrer">
+              <img src="assets/images/projects/creditcard-fraud.webp" alt="" aria-hidden="true" />
+              <div>
+                <div class="quick-title">Fraud Detection</div>
+                <div class="quick-sub">PyTorch, ranking metrics, PR AUC</div>
+              </div>
+            </a>
+
+            <a class="quick-card" href="https://github.com/YashSoni4115/LeetCode-Problems" target="_blank" rel="noreferrer">
+              <img src="assets/images/projects/leetcode.webp" alt="" aria-hidden="true" />
+              <div>
+                <div class="quick-title">LeetCode Problems</div>
+                <div class="quick-sub">Algorithms and data structures</div>
+              </div>
+            </a>
+
+            <a class="quick-card" href="https://github.com/YashSoni4115/LeetCode-to-Git" target="_blank" rel="noreferrer">
+              <img src="assets/images/projects/leetcode-to-git.webp" alt="" aria-hidden="true" />
+              <div>
+                <div class="quick-title">LeetCode to Git</div>
+                <div class="quick-sub">Automation, GitHub workflow</div>
+              </div>
+            </a>
+          </div>
+
+          <h2>Buttons</h2>
+          <p class="small">Swap these later with your own 88x31 badges if you want.</p>
+          <div class="badges">
+            <a href="https://github.com/YashSoni4115" target="_blank" rel="noreferrer"><span class="badge-pill">GitHub</span></a>
+            <a href="https://www.linkedin.com/in/yash4115/" target="_blank" rel="noreferrer"><span class="badge-pill">LinkedIn</span></a>
+            <a href="mailto:yashsonig@gmail.com"><span class="badge-pill">Email</span></a>
+            <a href="resume/resume.pdf" target="_blank" rel="noreferrer"><span class="badge-pill">Resume</span></a>
+          </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="page" id="about" data-page="about">
+          <h1>About</h1>
+          <hr />
+
+          <div class="two-col">
+            <div class="panel">
+              <h3>What I like building</h3>
+              <ul class="list">
+                <li>ML and analytics projects with practical evaluation, not just accuracy</li>
+                <li>Automation that saves time and keeps things organized</li>
+                <li>Clean, readable code and simple user experiences</li>
+              </ul>
+            </div>
+
+            <div class="panel">
+              <h3>Currently</h3>
+              <ul class="list">
+                <li>Exploring fraud detection style metrics, PR AUC, top K review, thresholding</li>
+                <li>Sharpening algorithms through LeetCode and tooling to publish solutions</li>
+                <li>Building dashboards and analysis workflows in Python and R</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Fun facts</h3>
+            <ul class="list">
+              <li>I like projects that feel like products, clear inputs, clear outputs, measurable results</li>
+              <li>I am a fan of a clean repo structure and a good README</li>
+              <li>Best late night debugging partner is a whiteboard</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- PROJECTS -->
+        <section class="page" id="projects" data-page="projects">
+          <h1>Projects</h1>
+          <hr />
+
+          <div class="project-list">
+            <article class="project-item">
+              <img src="assets/images/projects/creditcard-fraud.webp" alt="Credit Card Fraud Detection icon" />
+              <div class="project-meta">
+                <h3>Credit Card Fraud Detection (PyTorch)</h3>
+                <p>End to end fraud detection under extreme class imbalance, evaluated with PR AUC, ROC AUC, threshold tuning, and top K review queue simulation.</p>
+                <p class="tech">Python, PyTorch, NumPy, Pandas, Matplotlib</p>
+                <div class="links">
+                  <a href="https://github.com/YashSoni4115/CreditCard-Fraud-Detection" target="_blank" rel="noreferrer">GitHub</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="project-item">
+              <img src="assets/images/projects/leetcode.webp" alt="LeetCode Problems icon" />
+              <div class="project-meta">
+                <h3>LeetCode Problems</h3>
+                <p>Collection of solutions across difficulty levels, focused on clean implementations and fundamentals.</p>
+                <p class="tech">Python, Data Structures, Algorithms</p>
+                <div class="links">
+                  <a href="https://github.com/YashSoni4115/LeetCode-Problems" target="_blank" rel="noreferrer">GitHub</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="project-item">
+              <img src="assets/images/projects/leetcode-to-git.webp" alt="LeetCode to Git icon" />
+              <div class="project-meta">
+                <h3>LeetCode to Git</h3>
+                <p>CLI that collects problem metadata and code, then automatically commits and pushes solutions to GitHub using a consistent structure.</p>
+                <p class="tech">Python, Git, GitHub</p>
+                <div class="links">
+                  <a href="https://github.com/YashSoni4115/LeetCode-to-Git" target="_blank" rel="noreferrer">GitHub</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="project-item">
+              <img src="assets/images/projects/census-dashboard.webp" alt="Census Insights Dashboard icon" />
+              <div class="project-meta">
+                <h3>Census Insights Dashboard</h3>
+                <p>Interactive dashboard using Dash callbacks and dropdown filters to explore census style demographics in Jupyter.</p>
+                <p class="tech">Python, Pandas, Plotly, Dash, JupyterDash</p>
+                <div class="links">
+                  <a href="https://github.com/YashSoni4115/Census-Insights-Dashboard" target="_blank" rel="noreferrer">GitHub</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="project-item">
+              <img src="assets/images/projects/uber-analysis.webp" alt="Uber Analysis icon" />
+              <div class="project-meta">
+                <h3>Uber Analysis</h3>
+                <p>Trip volume analysis by day and month in R, including interactive DT tables and date feature work to surface demand patterns.</p>
+                <p class="tech">R, DT, Data Analysis</p>
+                <div class="links">
+                  <a href="https://github.com/YashSoni4115/Uber-Analysis" target="_blank" rel="noreferrer">GitHub</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="project-item">
+              <img src="assets/images/projects/colosseum-fighters.webp" alt="Colosseum Fighters icon" />
+              <div class="project-meta">
+                <h3>Colosseum Fighters</h3>
+                <p>Ancient Rome themed fighting game built with Pygame, structured into modules for entities, UI rendering, and asset loading.</p>
+                <p class="tech">Python, Pygame</p>
+                <div class="links">
+                  <a href="https://github.com/YashSoni4115/Colosseum-Fighters" target="_blank" rel="noreferrer">GitHub</a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- EXTRAS -->
+        <section class="page" id="extras" data-page="extras">
+          <h1>Extras</h1>
+          <hr />
+
+          <div class="panel">
+            <h3>Photo roll</h3>
+            <p class="small">A few snapshots, scroll through with the arrows.</p>
+
+            <div class="carousel" data-carousel>
+              <button class="carousel-btn prev" type="button" aria-label="Previous photo" data-carousel-prev>◀</button>
+
+              <figure class="carousel-frame">
+                <img class="carousel-img" src="assets/images/carousel/01_friends.jpg" alt="Hanging out with friends" data-carousel-img />
+                <figcaption class="carousel-cap" data-carousel-cap>Hanging out with friends</figcaption>
+              </figure>
+
+              <button class="carousel-btn next" type="button" aria-label="Next photo" data-carousel-next>▶</button>
+
+              <div class="carousel-dots" aria-label="Carousel navigation" data-carousel-dots></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Desk notes</h3>
+            <ul class="list">
+              <li>Favorite projects are the ones with real evaluation and clear tradeoffs</li>
+              <li>I like building things that are easy to run and easy to explain</li>
+              <li>If you are reading this, you found the fun tab</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section class="page" id="contact" data-page="contact">
+          <h1>Contact</h1>
+          <hr />
+
+          <div class="panel">
+            <p>Email is best: <a href="mailto:yashsonig@gmail.com">yashsonig@gmail.com</a></p>
+            <ul class="list">
+              <li>GitHub: <a href="https://github.com/YashSoni4115" target="_blank" rel="noreferrer">github.com/YashSoni4115</a></li>
+              <li>LinkedIn: <a href="https://www.linkedin.com/in/yash4115/" target="_blank" rel="noreferrer">linkedin.com/in/yash4115</a></li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <footer class="statusbar" aria-label="Status bar">
+      <div class="status-left">Ready</div>
+      <div class="status-mid"><a href="resume/resume.pdf" target="_blank" rel="noreferrer">Resume</a></div>
+      <div class="status-right">© Yash Soni</div>
+    </footer>
+  </main>
+
+  <script src="scripts/app.js"></script>
+  <script src="scripts/carousel.js"></script>
+</body>
+</html>

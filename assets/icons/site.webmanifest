@@ -1,0 +1,9 @@
+{
+  "name": "Yash Soni",
+  "short_name": "Yash",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f7f7a",
+  "theme_color": "#0a246a",
+  "icons": []
+}
