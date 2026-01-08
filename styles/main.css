@@ -66,11 +66,19 @@ body{
   font-size:13px;
 }
 
-.title-icon{
-  width:14px;
+.title-logo{
+  width:20px;
   height:14px;
-  background:linear-gradient(#fff, #bdbdbd);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+  font-weight:700;
+  color:#000;
+  background:#fff;
   border:1px solid rgba(0,0,0,.25);
+  box-shadow: inset 1px 1px 0 #dfdfdf;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
 }
 
 .title-controls{ display:flex; gap:4px; }
