@@ -203,3 +203,30 @@ a{ color:var(--link); }
   .status-mid{ display:none; }
   .status-right{ width:auto; }
 }
+.contact-items{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:8px;
+}
+
+.contact-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 8px;
+  border:1px solid #808080;
+  box-shadow: inset 1px 1px 0 #fff;
+  background:#fdfdfd;
+}
+
+.contact-item img{
+  width:18px;
+  height:18px;
+  image-rendering: pixelated;
+}
+
+.contact-item a{
+  font-size:13px;
+  text-decoration:none;
+}

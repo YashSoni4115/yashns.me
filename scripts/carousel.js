@@ -10,8 +10,8 @@
 
   const slides = [
     { src: "assets/images/carousel/01_friends.jpg", cap: "Friends, good vibes, and a classic pajama lineup" },
-    { src: "assets/images/carousel/02_study_room.jpg", cap: "Locked in for a study session with a sunset view" },
-    { src: "assets/images/carousel/03_meeting.jpg", cap: "Team meeting energy, laptops out, ideas moving" }
+    { src: "assets/images/carousel/02_yacht.jpg", cap: "Admiring the sunset from the yacht" },
+    { src: "assets/images/carousel/04_catan.jpg", cap: "Who doesn't love catan" }
   ];
 
   let idx = 0;
