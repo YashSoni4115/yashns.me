@@ -118,6 +118,10 @@
   background:#c0c0c0;
   cursor:pointer;
   font-size:14px;
+  transition: background 0.15s;
+}
+.carousel-btn:hover{
+  background:#d4d4d4;
 }
 .carousel-btn:active{
   box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #808080;
@@ -136,6 +140,10 @@
   background:#c0c0c0;
   box-shadow: inset 1px 1px 0 #fff;
   cursor:pointer;
+  transition: background 0.15s;
+}
+.carousel-dot:hover{
+  background:#a8a8a8;
 }
 .carousel-dot.is-active{
   background:#0a246a;

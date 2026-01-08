@@ -81,6 +81,9 @@ body{
   border:1px solid var(--win-darker);
   box-shadow: inset 1px 1px 0 var(--win-lighter), inset -1px -1px 0 var(--win-dark);
 }
+.ctrl:hover{
+  background:#d4d4d4;
+}
 .ctrl:active{
   box-shadow: inset -1px -1px 0 var(--win-lighter), inset 1px 1px 0 var(--win-dark);
 }
@@ -101,10 +104,16 @@ body{
   box-shadow: inset 1px 1px 0 var(--win-lighter);
   font-size:13px;
 }
+.tab:hover{
+  background:#d9d9d9;
+}
 .tab.is-active{
   background:#fff;
   position:relative;
   top:1px;
+}
+.tab.is-active:hover{
+  background:#fff;
 }
 
 /* client fills remaining height, avoids overflow gaps */
