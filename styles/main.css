@@ -40,6 +40,13 @@ body{
   flex-direction:column;
 }
 
+/* keep fixed rows stable so the client fills perfectly */
+.titlebar,
+.tabs,
+.statusbar{
+  flex: 0 0 auto;
+}
+
 .titlebar{
   background:var(--title);
   color:#fff;
@@ -100,13 +107,18 @@ body{
   top:1px;
 }
 
+/* client fills remaining height, avoids overflow gaps */
 .client{
-  flex:1;
+  flex: 1 1 auto;
+  min-height: 0;
   padding:0 4px 4px 4px;
 }
 
+/* inner panel perfectly fits the frame */
 .client-inner{
   height:100%;
+  width:100%;
+  margin:0;
   background:#fff;
   border:1px solid var(--win-darker);
   box-shadow: inset 1px 1px 0 var(--win-dark), inset -1px -1px 0 var(--win-lighter);

@@ -24,20 +24,11 @@ document.addEventListener("click", (e) => {
   if (!a) return;
 
   const tab = a.closest("a[data-page]");
-  const pageLink = a.closest("a[data-page-link]");
-
   if (tab) {
     e.preventDefault();
-    location.hash = tab.dataset.page;
-    return;
-  }
-
-  if (pageLink) {
-    e.preventDefault();
-    location.hash = pageLink.dataset.pageLink;
-    return;
+    location.hash = tab.dataset.page; // triggers hashchange
   }
 });
 
-
+window.addEventListener("hashchange", () => setActive(getPageFromHash()));
 setActive(getPageFromHash());
