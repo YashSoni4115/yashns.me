@@ -20,17 +20,28 @@ function getPageFromHash() {
 }
 
 document.addEventListener("click", (e) => {
-  const tab = e.target.closest("[data-page]");
-  const link = e.target.closest("[data-page-link]");
+  const a = e.target.closest("a");
+  if (!a) return;
+
+  // If this is a tab or an internal page link, hijack it
+  const tab = a.closest("[data-page]");
+  const pageLink = a.closest("[data-page-link]");
+
   if (tab) {
     e.preventDefault();
     location.hash = tab.dataset.page;
+    return;
   }
-  if (link) {
+
+  if (pageLink) {
     e.preventDefault();
-    location.hash = link.dataset.pageLink;
+    location.hash = pageLink.dataset.pageLink;
+    return;
   }
+
+  // Otherwise, allow normal behavior (external links, mailto, resume, etc.)
 });
+
 
 window.addEventListener("hashchange", () => {
   setActive(getPageFromHash());
