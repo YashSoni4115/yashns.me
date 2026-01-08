@@ -21,7 +21,7 @@ function setActive(page, prevPage) {
   }
 
   const title = page.charAt(0).toUpperCase() + page.slice(1);
-  document.title = `YS - ${title}`;
+  document.title = `Yash Soni - ${title}`;
   const titleEl = document.querySelector(".title-text");
   if (titleEl) titleEl.textContent = title;
 }
