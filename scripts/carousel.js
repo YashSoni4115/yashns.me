@@ -10,6 +10,7 @@
 
   const slides = [
     { src: "assets/images/carousel/04_catan.jpg", cap: "Who doesn't love catan" },
+    { src: "assets/images/carousel/03_miami_food.jpg", cap: "Delicious Miami cuisine" },
     { src: "assets/images/carousel/01_friends.jpg", cap: "Friends, good vibes, and a classic pajama lineup" },
     { src: "assets/images/carousel/02_yacht.JPG", cap: "Admiring the sunset from the yacht" }
   ];
