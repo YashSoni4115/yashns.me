@@ -9,6 +9,25 @@
   <link rel="stylesheet" href="styles/components.css" />
   <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 </head>
+<svg width="0" height="0" style="position:absolute; left:-9999px; top:-9999px;">
+  <filter id="genieWarp" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency="0.012 0.03"
+      numOctaves="2"
+      seed="2"
+      result="noise"
+    />
+    <feDisplacementMap
+      in="SourceGraphic"
+      in2="noise"
+      scale="0"
+      xChannelSelector="R"
+      yChannelSelector="G"
+    />
+  </filter>
+</svg>
+
 <body class="desktop">
   <main class="window" role="application" aria-label="Yash Soni portfolio window">
     <header class="titlebar">

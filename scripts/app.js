@@ -2,13 +2,48 @@ const scrollPositions = {};
 
 window.addEventListener("DOMContentLoaded", () => {
   const win = document.querySelector(".window");
-  if (!win) return;
+  const disp = document.querySelector("#genieWarp feDisplacementMap");
+  if (!win || !disp) return;
 
-  win.classList.add("is-opening");
+  win.classList.add("is-genie");
 
-  // Clean up after animation so resizing etc stays normal
-  window.setTimeout(() => win.classList.remove("is-opening"), 600);
+  const duration = 650; // ms
+  const start = performance.now();
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function frame(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const e = easeOutCubic(t);
+
+    // warp starts strong, then relaxes
+    const warp = (1 - e) * 55;
+    disp.setAttribute("scale", warp.toFixed(2));
+
+    // movement like genie open from dock
+    const y = (1 - e) * 180;
+    const sx = 0.10 + e * 0.90;
+    const sy = 0.06 + e * 0.94;
+    const skew = (1 - e) * -10;
+
+    win.style.opacity = String(Math.min(1, e * 1.2));
+    win.style.transform = `translateY(${y}px) scaleX(${sx}) scaleY(${sy}) skewX(${skew}deg)`;
+
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      disp.setAttribute("scale", "0");
+      win.style.opacity = "1";
+      win.style.transform = "none";
+      win.classList.remove("is-genie");
+    }
+  }
+
+  requestAnimationFrame(frame);
 });
+
 
 
 function setActive(page, prevPage) {
