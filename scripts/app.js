@@ -1,5 +1,16 @@
 const scrollPositions = {};
 
+window.addEventListener("DOMContentLoaded", () => {
+  const win = document.querySelector(".window");
+  if (!win) return;
+
+  win.classList.add("is-opening");
+
+  // Clean up after animation so resizing etc stays normal
+  window.setTimeout(() => win.classList.remove("is-opening"), 600);
+});
+
+
 function setActive(page, prevPage) {
   // Save scroll position of previous page
   const client = document.querySelector(".client-inner");
