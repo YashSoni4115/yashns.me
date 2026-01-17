@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded", () => {
   win.style.transform = "translateY(180px) scaleX(0.10) scaleY(0.06) skewX(-10deg)";
   disp.setAttribute("scale", "55");
 
-  const delay = 300; // ms delay before animation starts
+  const delay = 600; // ms delay before animation starts
   const duration = 650; // ms
 
   function easeOutCubic(t) {
