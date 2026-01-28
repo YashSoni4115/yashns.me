@@ -36,11 +36,24 @@
         <span class="title-text">Home</span>
       </div>
       <div class="title-controls" aria-hidden="true">
-        <button class="ctrl min" tabindex="-1" title="Minimize"></button>
+        <button class="ctrl spotify" tabindex="-1" title="Now Playing on Spotify" id="spotifyBtn">
+          <img src="assets/icons/spotify.webp" alt="Spotify" />
+        </button>
         <button class="ctrl max" tabindex="-1" title="Maximize"></button>
-        <button class="ctrl close" tabindex="-1" title="Close"></button>
+        <button class="ctrl close" tabindex="-1" title="Close">&#10005;</button>
       </div>
     </header>
+
+    <!-- Spotify Popup -->
+    <div class="spotify-popup" id="spotifyPopup">
+      <div class="spotify-popup-titlebar">
+        <span>Now Playing on Spotify</span>
+        <button class="spotify-popup-close" id="spotifyPopupClose">×</button>
+      </div>
+      <div class="spotify-popup-content" id="spotifyContent">
+        <div class="spotify-loading">Loading...</div>
+      </div>
+    </div>
 
     <nav class="tabs">
       <a class="tab is-active" href="#home" data-page="home">Home</a>
@@ -338,5 +351,18 @@
 
   <script src="scripts/app.js"></script>
   <script src="scripts/carousel.js"></script>
+  <script src="scripts/spotify.js"></script>
+  <script>
+    // Play win-close.mp3 when close button is clicked
+    document.addEventListener('DOMContentLoaded', function() {
+      var closeBtn = document.querySelector('.ctrl.close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+          var audio = new Audio('assets/win-close.mp3');
+          audio.play();
+        });
+      }
+    });
+  </script>
 </body>
 </html>

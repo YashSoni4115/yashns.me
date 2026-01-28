@@ -29,6 +29,7 @@ body{
 }
 
 .window{
+  position: relative;
   width:min(1100px, 96vw);
   height:min(760px, 92vh);
   background:var(--win-bg);
@@ -51,7 +52,7 @@ body{
 .titlebar{
   background:var(--title);
   color:#fff;
-  height:26px;
+  height:36px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -84,8 +85,8 @@ body{
 
 .title-controls{ display:flex; gap:4px; }
 .ctrl{
-  width:18px;
-  height:18px;
+  width:26px;
+  height:26px;
   background:var(--win-bg);
   border:1px solid var(--win-darker);
   box-shadow: inset 1px 1px 0 var(--win-lighter), inset -1px -1px 0 var(--win-dark);
@@ -415,4 +416,170 @@ a{ color:var(--link); }
 
 .window.is-genie{
   filter: url(#genieWarp);
+}
+
+/* Spotify Button */
+.ctrl.spotify{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.ctrl.spotify img{
+  width: 20px;
+  height: 20px;
+  image-rendering: auto;
+}
+
+/* Spotify Popup */
+.spotify-popup{
+  display: none;
+  position: absolute;
+  top: 30px;
+  right: 6px;
+  width: 280px;
+  background: var(--win-bg);
+  border: 2px solid var(--win-darker);
+  box-shadow:
+    2px 2px 0 0 #000,
+    inset 1px 1px 0 0 var(--win-lighter),
+    inset -1px -1px 0 0 var(--win-dark);
+  z-index: 1000;
+}
+.spotify-popup.is-open{
+  display: block;
+}
+.spotify-popup-titlebar{
+  background: var(--title);
+  color: #fff;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  user-select: none;
+}
+.spotify-popup-close{
+  width: 16px;
+  height: 16px;
+  background: var(--win-bg);
+  border: 1px solid var(--win-darker);
+  box-shadow: inset 1px 1px 0 var(--win-lighter), inset -1px -1px 0 var(--win-dark);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.spotify-popup-close:hover{
+  background: #d4d4d4;
+}
+.spotify-popup-close:active{
+  box-shadow: inset -1px -1px 0 var(--win-lighter), inset 1px 1px 0 var(--win-dark);
+}
+.spotify-popup-content{
+  padding: 10px;
+}
+.spotify-loading{
+  text-align: center;
+  font-size: 13px;
+  color: #333;
+  padding: 20px 0;
+}
+.spotify-error{
+  text-align: center;
+  font-size: 13px;
+  color: #c00;
+  padding: 20px 0;
+}
+.spotify-track{
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.spotify-album-art{
+  width: 80px;
+  height: 80px;
+  border: 1px solid #808080;
+  box-shadow: inset 1px 1px 0 #fff;
+  flex-shrink: 0;
+}
+.spotify-info{
+  flex: 1;
+  min-width: 0;
+}
+.spotify-status{
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.spotify-status.is-playing{
+  color: #1db954;
+}
+.spotify-status-dot{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #888;
+}
+.spotify-status.is-playing .spotify-status-dot{
+  background: #1db954;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%, 100%{ opacity: 1; }
+  50%{ opacity: 0.4; }
+}
+.spotify-title{
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.spotify-title a{
+  color: var(--text);
+  text-decoration: none;
+}
+.spotify-title a:hover{
+  text-decoration: underline;
+  color: var(--link);
+}
+.spotify-artist{
+  font-size: 12px;
+  color: #333;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.spotify-album{
+  font-size: 11px;
+  color: #666;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ctrl.close{
+  background: #e00000;
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid #650000;
+  box-shadow: inset 1px 1px 0 #ff9a9a, inset -1px -1px 0 #650000;
+}
+
+.ctrl.close:hover{
+  background: #c80000;
+}
+
+.ctrl.close:active{
+  box-shadow: inset -1px -1px 0 #ff9a9a, inset 1px 1px 0 #650000;
 }
