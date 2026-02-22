@@ -1,6 +1,6 @@
 // Spotify Now Playing Widget
 (function() {
-  const SPOTIFY_API = 'https://spotify-api-jw7r.vercel.app/api/recently-played';
+  const SPOTIFY_API = 'https://spotify-api-three-nu.vercel.app/api/recently-played';
   
   const spotifyBtn = document.querySelector('.ctrl.spotify');
   const popup = document.getElementById('spotifyPopup');
