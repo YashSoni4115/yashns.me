@@ -194,12 +194,15 @@ a{ color:var(--link); }
 
 .statusbar{
   display:flex;
+  align-items:stretch;
   gap:6px;
   padding:3px 4px;
   border-top:1px solid var(--win-dark);
   background:var(--win-bg);
 }
 .statusbar > div{
+  display:flex;
+  align-items:center;
   padding:3px 8px;
   border:1px solid var(--win-dark);
   box-shadow: inset 1px 1px 0 var(--win-lighter);
@@ -207,8 +210,19 @@ a{ color:var(--link); }
   font-size:12px;
 }
 .status-left{ flex:1; }
-.status-mid{ width:180px; text-align:center; }
-.status-right{ width:160px; text-align:right; }
+.status-left > div{
+  min-height:100%;
+}
+.status-mid{
+  width:180px;
+  justify-content:center;
+  text-align:center;
+}
+.status-right{
+  width:160px;
+  justify-content:flex-end;
+  text-align:right;
+}
 
 .page{ display:none; }
 .page.is-active{ display:block; }
