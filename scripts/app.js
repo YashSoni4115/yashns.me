@@ -98,13 +98,10 @@ document.addEventListener("click", (e) => {
   const tab = a.closest("a[data-page]");
   if (tab) {
     e.preventDefault();
-    location.hash = tab.dataset.page; // triggers hashchange
+    const newPage = tab.dataset.page;
+    setActive(newPage, currentPage);
+    currentPage = newPage;
   }
 });
 
-window.addEventListener("hashchange", () => {
-  const newPage = getPageFromHash();
-  setActive(newPage, currentPage);
-  currentPage = newPage;
-});
 setActive(currentPage, null);
