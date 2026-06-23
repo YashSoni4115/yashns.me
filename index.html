@@ -7,6 +7,7 @@
   <link rel="manifest" href="assets/icons/site.webmanifest" />
   <link rel="stylesheet" href="styles/main.css" />
   <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/mario.css" />
   <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 </head>
 <svg width="0" height="0" style="position:absolute; left:-9999px; top:-9999px;">
@@ -39,7 +40,7 @@
         <button class="ctrl spotify" tabindex="-1" title="Now Playing on Spotify" id="spotifyBtn">
           <img src="assets/icons/spotify.webp" alt="Spotify" />
         </button>
-        <button class="ctrl max" tabindex="-1" title="Maximize"></button>
+        <button class="ctrl mario-btn" tabindex="-1" title="Play Mario!"></button>
         <button class="ctrl close" tabindex="-1" title="Close">&#10005;</button>
       </div>
     </header>
@@ -348,7 +349,7 @@
                 </a>
               </div>
 
-              <div class="contact-item">
+              <div class="contact-item" id="contact-github">
                 <img src="assets/icons/github.png" alt="GitHub icon" />
                 <a href="https://github.com/YashSoni4115" target="_blank" rel="noreferrer">
                   github.com/YashSoni4115
@@ -420,6 +421,7 @@
   <script src="scripts/app.js"></script>
   <script src="scripts/carousel.js"></script>
   <script src="scripts/spotify.js"></script>
+  <script src="scripts/mario.js"></script>
   <script>
     // Play win-close.mp3 when close button is clicked
     document.addEventListener('DOMContentLoaded', function() {

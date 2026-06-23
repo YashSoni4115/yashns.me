@@ -1,0 +1,193 @@
+/* ═══════════════════════════════════
+   Mario Game – styles
+   ═══════════════════════════════════ */
+
+/* ── positioning contexts ── */
+.mario-active .client       { position: relative; }
+.mario-active .client-inner { position: relative; overflow-x: hidden; }
+
+/* ── Mario canvas ── */
+#mario-canvas {
+  position: absolute;
+  z-index: 500;
+  pointer-events: none;
+  image-rendering: auto;        /* smooth scaling for HD sprites */
+}
+
+/* ── Pipes ── */
+.mario-pipe {
+  position: absolute;
+  z-index: 500;
+  width: 72px;
+  height: 96px;
+  pointer-events: none;
+}
+.mario-pipe img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.mario-pipe-left  { left:  30px; }
+.mario-pipe-right { right: 30px; }
+
+/* Horizontal pipes: swap dimensions, rotate image, flush with wall */
+.mario-pipe.mario-pipe-horiz {
+  width: 96px;
+  height: 72px;
+}
+.mario-pipe.mario-pipe-horiz.mario-pipe-left {
+  left: -24px;
+}
+.mario-pipe.mario-pipe-horiz.mario-pipe-right {
+  right: -24px;
+}
+.mario-pipe.mario-pipe-horiz.mario-pipe-left img {
+  transform: rotate(90deg);
+}
+.mario-pipe.mario-pipe-horiz.mario-pipe-right img {
+  transform: rotate(-90deg);
+}
+
+/* ── Mystery Box ( ? block) ── */
+.mario-mystery-box {
+  position: absolute;
+  z-index: 490;
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  animation: boxFloat 1.5s ease-in-out infinite alternate;
+}
+.mario-mystery-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.mario-mystery-box.is-hit {
+  opacity: 0.5;
+  filter: grayscale(1) brightness(0.6);
+  animation: boxBonk 0.3s ease;
+}
+
+@keyframes boxFloat {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-4px); }
+}
+@keyframes boxBonk {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+/* ── Victory overlay ── */
+.mario-victory-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  animation: fadeInOverlay 0.4s ease;
+}
+.mario-victory-text {
+  color: #FFD700;
+  font-size: 28px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+  animation: victoryBounce 0.5s ease infinite alternate;
+}
+.mario-victory-text small {
+  font-size: 16px;
+  color: #fff;
+  display: block;
+  margin-top: 8px;
+}
+
+@keyframes victoryBounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-14px); }
+}
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Intro toast ── */
+.mario-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 10px 22px;
+  background: #000;
+  color: #FFD700;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid #FFD700;
+  border-radius: 4px;
+  text-shadow: 1px 1px 0 #000;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+  pointer-events: none;
+  animation: toastIn 0.35s ease-out;
+}
+.mario-toast.is-leaving {
+  animation: toastOut 0.4s ease-in forwards;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, -16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to   { opacity: 0; transform: translate(-50%, -16px); }
+}
+
+/* ── Mario button (titlebar) ── */
+.ctrl.mario-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  /* Crop the jump frame (640,32,256,240) from the 928×272 sprite sheet,
+     scaled down so the 256×240 frame fits in the 24×24 inner area. */
+  background-image: url('../assets/mario/sprite-sheet.webp');
+  background-repeat: no-repeat;
+  /* Sheet scaled: 928 * (22/256) ≈ 80px wide, 272 * (22/240) ≈ 25px tall */
+  background-size: 80px 25px;
+  /* Position so the jump frame (top-left 640,32 in source) maps into the button */
+  background-position: -55px -3px;
+  image-rendering: -webkit-optimize-contrast;
+}
+.ctrl.mario-btn.is-active {
+  background-color: #d4d4d4;
+  box-shadow:
+    inset -1px -1px 0 var(--win-lighter),
+    inset  1px  1px 0 var(--win-dark);
+}
+
+/* ── Goombas ── */
+.mario-goomba {
+  position: absolute;
+  z-index: 490;
+  pointer-events: none;
+  image-rendering: auto;
+}
+
+/* ── Mario death animation ── */
+#mario-canvas.mario-dying {
+  animation: marioDeath 0.6s ease-in forwards;
+  z-index: 510;
+}
+
+@keyframes marioDeath {
+  0%   { transform: translateY(0)    rotate(0);    opacity: 1; }
+  20%  { transform: translateY(-50px) rotate(180deg); }
+  100% { transform: translateY(150px) rotate(360deg); opacity: 0; }
+}
