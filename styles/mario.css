@@ -52,10 +52,10 @@
 .mario-mystery-box {
   position: absolute;
   z-index: 490;
-  width: 48px;
-  height: 48px;
+  width: 27px;
+  height: 27px;
   pointer-events: none;
-  animation: boxFloat 1.5s ease-in-out infinite alternate;
+  animation: boxFloat 1.6s ease-in-out infinite alternate;
 }
 .mario-mystery-box img {
   width: 100%;
@@ -69,14 +69,14 @@
   animation: boxBonk 0.3s ease;
 }
 
-@keyframes boxFloat {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-4px); }
-}
 @keyframes boxBonk {
   0%   { transform: translateY(0); }
   30%  { transform: translateY(-8px); }
   100% { transform: translateY(0); }
+}
+@keyframes boxFloat {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-3px); }
 }
 
 /* ── Victory overlay ── */
@@ -155,15 +155,12 @@
   justify-content: center;
   padding: 0;
   cursor: pointer;
-  /* Crop the jump frame (640,32,256,240) from the 928×272 sprite sheet,
-     scaled down so the 256×240 frame fits in the 24×24 inner area. */
-  background-image: url('../assets/mario/sprite-sheet.webp');
+  /* Mystery box logo, fills the button (image has its own padding) */
+  background-image: url('../assets/mario/mystery-box.png');
   background-repeat: no-repeat;
-  /* Sheet scaled: 928 * (22/256) ≈ 80px wide, 272 * (22/240) ≈ 25px tall */
-  background-size: 80px 25px;
-  /* Position so the jump frame (top-left 640,32 in source) maps into the button */
-  background-position: -55px -3px;
-  image-rendering: -webkit-optimize-contrast;
+  background-size: 26px 26px;
+  background-position: center center;
+  image-rendering: pixelated;
 }
 .ctrl.mario-btn.is-active {
   background-color: #d4d4d4;

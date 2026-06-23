@@ -20,8 +20,8 @@
 
   /* sprite regions inside the 928×272 sheet */
   const FRAME = {
-    idle : { x: 0,   y: 48, w: 240, h: 224 },
-    run  : { x: 272, y: 0,  w: 240, h: 256 },
+    run  : { x: 0,   y: 48, w: 240, h: 224 },
+    idle : { x: 272, y: 0,  w: 240, h: 256 },
     jump : { x: 640, y: 32, w: 256, h: 240 },
   };
 
@@ -141,9 +141,11 @@
   let emergeTimer     = 0;
   let emergeSide      = null;  // 'horiz-left', 'horiz-right', 'vert'
   let marioPage       = null;  // which page Mario is currently on
-  let goombas         = [];
+  let marioSnapshot   = null;  // saved position when Mario leaves his page
+  let goombasByPage   = {};    // { pageName: Array<goomba> } — persistent per page
   let dying           = false;
   let dyingTimer      = 0;
+  let cameraFollowing = false; // smooth scroll engaged after Mario leaves viewport
 
   /* ──────── DOM refs ──────── */
   let ci, cl;                     // .client-inner  .client
@@ -173,6 +175,11 @@
     cl = document.querySelector('.client');
     if (!ci || !cl) return;
 
+    /* Always start on the home page regardless of current tab */
+    if (getPage() !== 'home' && window.navigateTo) {
+      window.navigateTo('home');
+    }
+
     /* spawn Mario at the bottom of the page content */
     const groundY = getGroundY();
     m = {
@@ -187,7 +194,7 @@
     attachKeys();
     document.body.classList.add('mario-active');
     document.querySelector('.ctrl.mario-btn')?.classList.add('is-active');
-    marioPage = getPage();
+    marioPage = 'home';
 
     /* Intro toast — shown every time Mario starts */
     showToast('Find the Mystery Box!', 4000);
@@ -208,13 +215,35 @@
   }
 
   /** Called from app.js when the user clicks a tab manually.
-   *  Mario stays on his page — only visible when on his page. */
+   *  Mario stays on his page — only visible when on his page.
+   *  We snapshot his exact position when he leaves his page, and
+   *  restore that snapshot when he comes back, so he stays on the
+   *  same platform (x AND y). */
   function onPageSwitch() {
     if (!on) return;
+    const nowPage = getPage();
+
+    /* Returning to Mario's page → restore his exact position */
+    if (nowPage === marioPage && marioSnapshot) {
+      m.x = marioSnapshot.x;
+      m.y = marioSnapshot.y;
+      m.vx = 0; m.vy = 0;
+      m.grounded = marioSnapshot.grounded;
+      m.facing = marioSnapshot.facing;
+      marioSnapshot = null;
+    } else if (nowPage !== marioPage && !marioSnapshot) {
+      /* Leaving Mario's page → snapshot where he was */
+      marioSnapshot = {
+        x: m.x, y: m.y,
+        grounded: m.grounded,
+        facing: m.facing,
+      };
+    }
+
     rebuildPipes();
     rebuildFlag();
-    rebuildGoombas();
-    /* Show/hide Mario based on whether he’s on this page */
+    ensureGoombasForPage(nowPage);
+    /* Show/hide Mario based on whether he's on this page */
     updateMarioVisibility();
     pipeCooldown = 30;
     victoryCooldown = 60;
@@ -242,7 +271,8 @@
     ctx = canvas.getContext('2d');
     rebuildPipes();
     rebuildFlag();
-    rebuildGoombas();
+    goombasByPage = {};
+    ensureGoombasForPage(getPage());
   }
 
   function rebuildPipes() {
@@ -274,14 +304,14 @@
         flagEl = document.createElement('div');
         flagEl.className = 'mario-mystery-box';
         const img = document.createElement('img');
-        img.src = 'assets/mario/mystery-box.png';
+        img.src = 'assets/mario/mystery-box.gif';
         img.alt = 'Mystery Box';
         flagEl.appendChild(img);
         ci.appendChild(flagEl);
         const ciRect = ci.getBoundingClientRect();
         const tRect  = target.getBoundingClientRect();
-        flagEl.style.top  = (tRect.bottom - ciRect.top + ci.scrollTop) + 'px';
-        flagEl.style.left = (tRect.right  - ciRect.left + ci.scrollLeft - 48 - 8) + 'px';
+        flagEl.style.top  = (tRect.bottom - ciRect.top + ci.scrollTop + 6) + 'px';
+        flagEl.style.left = (tRect.right  - ciRect.left + ci.scrollLeft - 27 - 3 - 20) + 'px';
       }
     }
   }
@@ -331,7 +361,10 @@
     pipeEls.forEach(p => p.el.remove()); pipeEls = [];
     flagEl?.remove();          flagEl = null;
     victoryOverlay?.remove();  victoryOverlay = null;
-    goombas.forEach(g => g.canvas?.remove()); goombas = [];
+    for (const page in goombasByPage) {
+      for (const g of goombasByPage[page]) g.canvas?.remove();
+    }
+    goombasByPage = {};
   }
 
   /* ══════════════════════════════════
@@ -393,6 +426,10 @@
     if (victory) return;
     if (pipeCooldown > 0)    pipeCooldown--;
     if (victoryCooldown > 0) victoryCooldown--;
+
+    /* Goombas walk on every page regardless of which tab the user is
+     * viewing — so when they switch back they see them in new spots. */
+    updateGoombas();
 
     /* If Mario isn't on the active page, freeze him */
     if (getPage() !== marioPage) return;
@@ -482,9 +519,6 @@
 
     /* ── victory ── */
     checkVictory();
-
-    /* ── goombas ── */
-    updateGoombas();
   }
 
   /* ────── platforms (world coords) ────── */
@@ -883,7 +917,10 @@
     if (window.navigateTo) window.navigateTo(transTarget);
     rebuildPipes();
     rebuildFlag();
-    rebuildGoombas();
+    ensureGoombasForPage(transTarget);
+    /* Move any goombas out of the pipe exclusion zones so Mario
+     * emerges into a safe spot. They slide past peers during this. */
+    displaceGoombasFromPipes(transTarget);
 
     /* Exit from the opposite side pipe.
      * Entered left pipe → exit right pipe. Entered right pipe → exit left pipe.
@@ -935,8 +972,9 @@
       emergeTimer = 0;
     }
 
-    /* Track which page Mario is on */
+    /* Track which page Mario is on (warp clears any saved snapshot) */
     marioPage = getPage();
+    marioSnapshot = null;
     updateMarioVisibility();
 
     /* Scroll so Mario’s exit pipe is visible */
@@ -1011,6 +1049,34 @@
     /* reposition pipes */
     positionPipes();
 
+    /* Camera follow: only triggers once Mario goes fully off-screen,
+     * then smoothly eases scroll toward centering him. While he's
+     * visible, the user can scroll freely. */
+    if (getPage() === marioPage && !dying && !transitioning) {
+      const top    = ci.scrollTop;
+      const bottom = top + ci.clientHeight;
+      const offTop    = m.y + MARIO_H < top;
+      const offBottom = m.y > bottom;
+      if (offTop || offBottom) {
+        cameraFollowing = true;
+      }
+      if (cameraFollowing) {
+        const targetTop = clamp(
+          m.y + MARIO_H / 2 - ci.clientHeight / 2,
+          0,
+          ci.scrollHeight - ci.clientHeight
+        );
+        /* Lerp toward target for smoothness */
+        const next = ci.scrollTop + (targetTop - ci.scrollTop) * 0.18;
+        ci.scrollTop = next;
+        /* Stop following once we're close to target (within 1px) */
+        if (Math.abs(targetTop - ci.scrollTop) < 1) {
+          ci.scrollTop = targetTop;
+          cameraFollowing = false;
+        }
+      }
+    }
+
     /* position Mario canvas in world (scroll) space */
     canvas.style.left = m.x + 'px';
     canvas.style.top  = m.y + 'px';
@@ -1029,17 +1095,24 @@
     ctx.clearRect(0, 0, MARIO_W, MARIO_H);
     if (!spriteImg.complete) return;
 
+    /* Preserve sprite aspect ratio: fit by height, center horizontally,
+     * anchor bottom (feet stay on the ground). */
+    const drawH = MARIO_H;
+    const drawW = MARIO_H * (frame.w / frame.h);
+    const drawX = (MARIO_W - drawW) / 2;
+    const drawY = 0;
+
     ctx.imageSmoothingEnabled = true;
     ctx.save();
     if (m.facing === 'left') {
       ctx.scale(-1, 1);
       ctx.drawImage(spriteImg,
         frame.x, frame.y, frame.w, frame.h,
-        -MARIO_W, 0, MARIO_W, MARIO_H);
+        -(drawX + drawW), drawY, drawW, drawH);
     } else {
       ctx.drawImage(spriteImg,
         frame.x, frame.y, frame.w, frame.h,
-        0, 0, MARIO_W, MARIO_H);
+        drawX, drawY, drawW, drawH);
     }
     ctx.restore();
 
@@ -1050,12 +1123,67 @@
      GOOMBAS
      ═════════════════════════════════ */
 
-  function rebuildGoombas() {
-    goombas.forEach(g => g.canvas?.remove());
-    goombas = [];
-    if (!ci) return;
-    const list = GOOMBA_CONFIG[getPage()] || [];
+  /** Build (or no-op if already cached) the goombas for the given page.
+   *  Must be called while `page` is the currently-active DOM page,
+   *  because we use getBoundingClientRect() to measure platform anchors.
+   *  Once built, the goombas keep walking in the background — even when
+   *  the user switches to a different tab — because we cache every piece
+   *  of collision data they need on the goomba object itself. */
+  function ensureGoombasForPage(page) {
+    if (!ci || !page) return;
+    if (goombasByPage[page]) return;      // already built — keep them as they are
+    if (page !== getPage()) return;       // can only measure the visible page
+    goombasByPage[page] = buildGoombasForPage(page);
+  }
+
+  function buildGoombasForPage(page) {
+    const built  = [];
+    const list   = GOOMBA_CONFIG[page] || [];
+    if (!list.length) return built;
+
     const ciRect = ci.getBoundingClientRect();
+
+    /* Cache pipe exclusion zones + solid collision rects for this page.
+     * These are captured ONCE so goombas can keep walking even when the
+     * page is `display:none` (and getBoundingClientRect() returns 0). */
+    const pipeRects = getPipeWorldRects();
+    const pipeBuffer = ci.clientWidth * 0.10;
+    const exclusionZones = pipeRects.map(p => ({
+      x1: p.bodyX - pipeBuffer,
+      x2: p.bodyX + p.bodyW + pipeBuffer,
+      y1: -Infinity,
+      y2:  Infinity,
+    }));
+    const solids = getBarriers().slice();
+    for (const p of pipeRects) {
+      if (p.orient === 'horizontal') {
+        solids.push({ x: p.bodyX, y: p.bodyY, w: p.bodyW, h: p.bodyH });
+      } else {
+        solids.push({ x: p.bodyX, y: p.rimY, w: p.bodyW, h: p.h });
+      }
+    }
+    const groundY = getGroundY();
+
+    /* Pick a random x that doesn't intersect any pipe exclusion at the given y. */
+    function pickSafeX(minX, maxX, y) {
+      const range = maxX - minX;
+      if (range <= 0) return minX;
+      let bestX = minX + Math.random() * range;
+      let bestDist = -Infinity;
+      for (let t = 0; t < 30; t++) {
+        const cx = minX + Math.random() * range;
+        let conflict = false, minDist = Infinity;
+        for (const z of exclusionZones) {
+          if (y + GOOMBA_H <= z.y1 || y >= z.y2) continue;
+          if (cx + GOOMBA_W > z.x1 && cx < z.x2) { conflict = true; break; }
+          minDist = Math.min(minDist, Math.min(Math.abs(cx - z.x2), Math.abs(cx + GOOMBA_W - z.x1)));
+        }
+        if (!conflict) return cx;
+        if (minDist > bestDist) { bestDist = minDist; bestX = cx; }
+      }
+      return bestX;
+    }
+
     for (const cfg of list) {
       const count = cfg.count || 1;
       let anchors;
@@ -1071,8 +1199,7 @@
 
       /* For multi-goomba spawns on the same anchor:
        *   - 50/50 flip decides which one starts going left vs right
-       *   - they always go opposite directions (alternate)
-       * For single-goomba spawns: independent random direction. */
+       *   - they always go opposite directions (alternate). */
       const sharedAnchor = anchors.length > 1 && anchors.every(a => a === anchors[0]);
       const flip = Math.random() < 0.5 ? -1 : 1;
 
@@ -1085,58 +1212,115 @@
         ci.appendChild(c);
         const ctxG = c.getContext('2d');
 
-        let x, y;
+        let x, y, platX, platY, platW;
         if (el) {
           const aRect = el.getBoundingClientRect();
-          const platY = aRect.top  - ciRect.top  + ci.scrollTop;
-          const platX = aRect.left - ciRect.left + ci.scrollLeft;
-          const platW = Math.max(GOOMBA_W, aRect.width);
-          x = platX + Math.random() * (platW - GOOMBA_W);
+          platY = aRect.top  - ciRect.top  + ci.scrollTop;
+          platX = aRect.left - ciRect.left + ci.scrollLeft;
+          platW = Math.max(GOOMBA_W, aRect.width);
           y = cfg.bottom
             ? platY + aRect.height - GOOMBA_H
             : platY - GOOMBA_H;
+          x = pickSafeX(platX, platX + platW - GOOMBA_W, y);
         } else {
           /* ground-level free roam */
-          y = getGroundY();
-          x = Math.random() * (ci.clientWidth - GOOMBA_W);
+          platX = 0;
+          platY = groundY;
+          platW = ci.clientWidth;
+          y = groundY;
+          x = pickSafeX(0, ci.clientWidth - GOOMBA_W, y);
         }
 
         const dir = sharedAnchor
           ? (i % 2 === 0 ? flip : -flip)
           : (Math.random() < 0.5 ? -1 : 1);
-        goombas.push({
+        built.push({
+          page,
           canvas: c, ctx: ctxG,
           anchor: el,
           bottom: !!cfg.bottom,
           groundLevel: !!cfg.groundLevel,
+          /* Cached collision data — used when this page is not visible. */
+          platX, platY, platW,
+          solids,
+          pipeZones: exclusionZones,
           x, y,
           vx: dir * GOOMBA_SPEED,
           dead: false, deadTimer: 0, alive: true,
+          /* Set >0 to skip goomba↔goomba collision for N frames
+           * (used during pipe-warp displacement so they can slide past each other). */
+          passThrough: 0,
         });
         i++;
+      }
+    }
+    return built;
+  }
+
+  /** After Mario pipe-warps onto `page`, push any goombas that happen
+   *  to be inside a pipe exclusion zone toward the nearest safe x.
+   *  They are allowed to slide past each other during this evacuation. */
+  function displaceGoombasFromPipes(page) {
+    const list = goombasByPage[page];
+    if (!list || !list.length) return;
+
+    for (const g of list) {
+      if (!g.alive || g.dead) continue;
+      for (const z of g.pipeZones) {
+        if (g.y + GOOMBA_H <= z.y1 || g.y >= z.y2) continue;
+        if (g.x + GOOMBA_W <= z.x1 || g.x >= z.x2) continue;
+
+        /* Goomba is inside this zone — find the nearest safe x.
+         * Try both sides of the zone and pick the one that:
+         *   (a) keeps it on its platform, and
+         *   (b) is shortest distance from current x. */
+        const platMin = g.platX;
+        const platMax = g.platX + g.platW - GOOMBA_W;
+        const leftCandidate  = z.x1 - GOOMBA_W - 1;
+        const rightCandidate = z.x2 + 1;
+        const leftOK  = leftCandidate  >= platMin && leftCandidate  <= platMax;
+        const rightOK = rightCandidate >= platMin && rightCandidate <= platMax;
+
+        let target;
+        if (leftOK && rightOK) {
+          target = Math.abs(leftCandidate - g.x) <= Math.abs(rightCandidate - g.x)
+            ? leftCandidate : rightCandidate;
+        } else if (leftOK)  { target = leftCandidate;  }
+        else if (rightOK) { target = rightCandidate; }
+        else {
+          /* Neither side fits on the platform — clamp inside platform anyway. */
+          target = clamp(g.x, platMin, platMax);
+        }
+        /* Make it walk AWAY from where it just came from. */
+        g.vx = target < g.x ? -Math.abs(g.vx) : Math.abs(g.vx);
+        g.x = target;
+        g.passThrough = 45;   // ~0.75 s of pass-through to slide past peers
+        break;
       }
     }
   }
 
   function updateGoombas() {
-    if (getPage() !== marioPage) return;
-    const ciRect = ci.getBoundingClientRect();
-    const barriers = getBarriers();
-    const pipeRects = getPipeWorldRects();
-
-    /* Build solid bounds list for goomba reversal:
-     * barriers + pipe bodies (horizontal: bodyX/Y/W/H, vertical: bodyX/W full height) */
-    const solids = barriers.slice();
-    for (const p of pipeRects) {
-      if (p.orient === 'horizontal') {
-        solids.push({ x: p.bodyX, y: p.bodyY, w: p.bodyW, h: p.bodyH });
-      } else {
-        solids.push({ x: p.bodyX, y: p.rimY, w: p.bodyW, h: p.h });
-      }
+    /* Walk every page's goombas so they keep moving even when the
+     * user is viewing a different tab. Mario collisions only apply
+     * for goombas on his current page AND while the user is actually
+     * watching (so Mario can't die silently off-screen). */
+    const userPage = getPage();
+    for (const page in goombasByPage) {
+      updateGoombasForPage(page, page === marioPage && page === userPage);
     }
+  }
 
-    /* 1) Move each goomba & resolve platform/barrier edges */
-    for (const g of goombas) {
+  function updateGoombasForPage(page, checkMarioCollision) {
+    const list = goombasByPage[page];
+    if (!list || !list.length) return;
+    const isVisible = page === getPage();
+    const ciRect = isVisible ? ci.getBoundingClientRect() : null;
+
+    /* 1) Move each goomba & resolve platform/barrier edges.
+     * We use cached platX/platW/solids so this works even when `page`
+     * is hidden (display:none → bounding rects return 0). */
+    for (const g of list) {
       if (!g.alive) continue;
       if (g.dead) {
         g.deadTimer++;
@@ -1147,46 +1331,50 @@
         continue;
       }
 
-      let platX, platW;
-      if (g.anchor) {
+      /* If the page is currently visible, refresh anchor coords so the
+       * goomba stays glued to the platform if it scrolled/resized. */
+      if (isVisible && g.anchor) {
         const aRect = g.anchor.getBoundingClientRect();
-        const platY = aRect.top  - ciRect.top  + ci.scrollTop;
-        platX = aRect.left - ciRect.left + ci.scrollLeft;
-        platW = aRect.width;
-        g.y = g.bottom
-          ? platY + aRect.height - GOOMBA_H
-          : platY - GOOMBA_H;
-      } else {
-        /* groundLevel: patrol the full page floor */
-        platX = 0;
-        platW = ci.clientWidth;
-        g.y = getGroundY();
+        if (aRect.width > 0) {
+          g.platY = aRect.top  - ciRect.top  + ci.scrollTop;
+          g.platX = aRect.left - ciRect.left + ci.scrollLeft;
+          g.platW = Math.max(GOOMBA_W, aRect.width);
+          g.y = g.bottom
+            ? g.platY + aRect.height - GOOMBA_H
+            : g.platY - GOOMBA_H;
+        }
+      } else if (g.groundLevel) {
+        g.y = g.platY;        // cached groundY
       }
 
       g.x += g.vx;
-      if (g.x < platX) { g.x = platX; g.vx = Math.abs(g.vx); }
-      if (g.x + GOOMBA_W > platX + platW) {
-        g.x = platX + platW - GOOMBA_W;
+      if (g.x < g.platX) { g.x = g.platX; g.vx = Math.abs(g.vx); }
+      if (g.x + GOOMBA_W > g.platX + g.platW) {
+        g.x = g.platX + g.platW - GOOMBA_W;
         g.vx = -Math.abs(g.vx);
       }
 
-      /* Reverse on barriers and pipes */
-      for (const b of solids) {
+      /* Reverse on barriers and pipes (cached at spawn). */
+      for (const b of g.solids) {
         if (g.y + GOOMBA_H <= b.y || g.y >= b.y + b.h) continue;
         if (g.x + GOOMBA_W > b.x && g.x < b.x + b.w) {
           if (g.vx > 0) { g.x = b.x - GOOMBA_W; g.vx = -Math.abs(g.vx); }
           else          { g.x = b.x + b.w;     g.vx =  Math.abs(g.vx); }
         }
       }
+
+      if (g.passThrough > 0) g.passThrough--;
     }
 
-    /* 2) Goomba↔goomba collision — both reverse */
-    for (let i = 0; i < goombas.length; i++) {
-      const a = goombas[i];
+    /* 2) Goomba↔goomba collision — both reverse.
+     * Goombas with passThrough > 0 (just displaced) can slide past peers. */
+    for (let i = 0; i < list.length; i++) {
+      const a = list[i];
       if (!a.alive || a.dead) continue;
-      for (let j = i + 1; j < goombas.length; j++) {
-        const b = goombas[j];
+      for (let j = i + 1; j < list.length; j++) {
+        const b = list[j];
         if (!b.alive || b.dead) continue;
+        if (a.passThrough > 0 || b.passThrough > 0) continue;
         if (a.x + GOOMBA_W > b.x && a.x < b.x + GOOMBA_W &&
             a.y + GOOMBA_H > b.y && a.y < b.y + GOOMBA_H) {
           if (a.x < b.x) {
@@ -1202,9 +1390,9 @@
       }
     }
 
-    /* 3) Mario collisions */
-    if (dying) return;
-    for (const g of goombas) {
+    /* 3) Mario collisions (only when this is Mario's page) */
+    if (!checkMarioCollision || dying) return;
+    for (const g of list) {
       if (!g.alive || g.dead) continue;
       const overlap =
         m.x + MARIO_W > g.x + 4 &&
@@ -1227,11 +1415,16 @@
   }
 
   function renderGoombas() {
-    if (getPage() !== marioPage) {
-      for (const g of goombas) if (g.canvas) g.canvas.style.display = 'none';
-      return;
+    /* Hide goombas that aren't on the user's currently-visible page */
+    const userPage = getPage();
+    for (const page in goombasByPage) {
+      if (page === userPage) continue;
+      for (const g of goombasByPage[page]) {
+        if (g.canvas) g.canvas.style.display = 'none';
+      }
     }
-    for (const g of goombas) {
+    const visible = goombasByPage[userPage] || [];
+    for (const g of visible) {
       if (!g.alive || !g.canvas) continue;
       g.canvas.style.display = '';
       g.canvas.style.left = g.x + 'px';
@@ -1272,9 +1465,15 @@
     /* Switch to home page if not there */
     if (getPage() !== 'home' && window.navigateTo) window.navigateTo('home');
     marioPage = 'home';
+    marioSnapshot = null;
     rebuildPipes();
     rebuildFlag();
-    rebuildGoombas();
+    /* Fresh start: clear every page's goombas; they'll rebuild lazily. */
+    for (const page in goombasByPage) {
+      for (const g of goombasByPage[page]) g.canvas?.remove();
+    }
+    goombasByPage = {};
+    ensureGoombasForPage('home');
     const groundY = getGroundY();
     m.x = ci.clientWidth / 2 - MARIO_W / 2;
     m.y = groundY;
