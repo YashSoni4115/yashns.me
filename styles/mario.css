@@ -134,7 +134,20 @@
   text-shadow: 1px 1px 0 #000;
   box-shadow: 0 4px 0 rgba(0,0,0,0.4);
   pointer-events: none;
+  text-align: center;
   animation: toastIn 0.35s ease-out;
+}
+.mario-toast-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+.mario-toast-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+  color: #fff;
+  opacity: 0.85;
 }
 .mario-toast.is-leaving {
   animation: toastOut 0.4s ease-in forwards;
@@ -177,14 +190,5 @@
   image-rendering: auto;
 }
 
-/* ── Mario death animation ── */
-#mario-canvas.mario-dying {
-  animation: marioDeath 0.6s ease-in forwards;
-  z-index: 510;
-}
-
-@keyframes marioDeath {
-  0%   { transform: translateY(0)    rotate(0);    opacity: 1; }
-  20%  { transform: translateY(-50px) rotate(180deg); }
-  100% { transform: translateY(150px) rotate(360deg); opacity: 0; }
-}
+/* Mario death is handled in JS (sprite flip + physics fall);
+   no CSS animation needed. */

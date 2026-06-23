@@ -145,7 +145,8 @@
   let goombasByPage   = {};    // { pageName: Array<goomba> } — persistent per page
   let dying           = false;
   let dyingTimer      = 0;
-  let cameraFollowing = false; // smooth scroll engaged after Mario leaves viewport
+  let deathSoundDone  = false;  // true once the death audio has finished playing
+  let deathSoundTimer = null;   // setTimeout id for death-audio-end watcher
 
   /* ──────── DOM refs ──────── */
   let ci, cl;                     // .client-inner  .client
@@ -167,7 +168,23 @@
 
   function toggle() { on ? stop() : start(); }
 
+  /** Mario uses arrow keys and is too cramped on small screens — bail
+   *  early with a friendly toast if we detect a mobile/touch device. */
+  function isMobileDevice() {
+    const ua = navigator.userAgent || '';
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(ua)) return true;
+    /* Coarse pointer (touch) + no fine pointer (mouse) is a strong mobile signal */
+    if (window.matchMedia && window.matchMedia('(pointer: coarse) and (hover: none)').matches) return true;
+    /* Narrow viewport as a final safety net */
+    if (window.innerWidth < 640) return true;
+    return false;
+  }
+
   function start() {
+    if (isMobileDevice()) {
+      showToast('Mario is not supported on mobile', 'Please play from a desktop browser', 5000);
+      return;
+    }
     on = true; victory = false; tick = 0; keys = {};
     transitioning = false; pipeCooldown = 0; victoryCooldown = 90;
     dropThrough = 0;
@@ -197,7 +214,7 @@
     marioPage = 'home';
 
     /* Intro toast — shown every time Mario starts */
-    showToast('Find the Mystery Box!', 4000);
+    showToast('Find the Mystery Box!', 'Move with arrow keys', 4500);
 
     /* scroll to Mario (bottom of page) */
     ci.scrollTop = ci.scrollHeight - ci.clientHeight;
@@ -417,7 +434,25 @@
     }
     if (dying) {
       dyingTimer++;
-      if (dyingTimer >= 36) {
+      /* Phase 1: brief freeze (~15 frames) so the player registers the hit. */
+      if (dyingTimer === 15) {
+        /* Launch upward for the classic SMB1 death hop. */
+        m.vy = JUMP_VEL * 0.95;
+        m.vx = 0;
+      }
+      if (dyingTimer > 15) {
+        /* Free-fall — gravity only, no collisions, no horizontal movement. */
+        m.vy += GRAVITY;
+        m.y  += m.vy;
+      }
+      /* Respawn only when BOTH the death sound has finished AND Mario
+       * has fallen well below the viewport. */
+      const offBottom = m.y > ci.scrollTop + ci.clientHeight + MARIO_H * 2;
+      if (dyingTimer > 15 && offBottom && deathSoundDone) {
+        dying = false;
+        respawnMario();
+      } else if (dyingTimer > 360) {
+        /* Safety net: 6 s max so we never get stuck if audio fails to fire 'ended'. */
         dying = false;
         respawnMario();
       }
@@ -1027,11 +1062,24 @@
     }, 3000);
   }
 
-  /* Lightweight top-of-screen toast (used for intro hint) */
-  function showToast(text, duration) {
+  /* Lightweight top-of-screen toast (used for intro hint).
+   * If `subtitle` is omitted, falls back to single-line.
+   * If only two args are passed (text, duration), works the old way. */
+  function showToast(text, subtitle, duration) {
+    /* Back-compat: showToast('msg', 3000) */
+    if (typeof subtitle === 'number') { duration = subtitle; subtitle = ''; }
     const toast = document.createElement('div');
     toast.className = 'mario-toast';
-    toast.textContent = text;
+    const title = document.createElement('div');
+    title.className = 'mario-toast-title';
+    title.textContent = text;
+    toast.appendChild(title);
+    if (subtitle) {
+      const sub = document.createElement('div');
+      sub.className = 'mario-toast-sub';
+      sub.textContent = subtitle;
+      toast.appendChild(sub);
+    }
     document.body.appendChild(toast);
     setTimeout(() => {
       toast.classList.add('is-leaving');
@@ -1049,30 +1097,35 @@
     /* reposition pipes */
     positionPipes();
 
-    /* Camera follow: only triggers once Mario goes fully off-screen,
-     * then smoothly eases scroll toward centering him. While he's
-     * visible, the user can scroll freely. */
+    /* Camera: Super Mario World–style deadzone box. There's an invisible
+     * rectangle in the middle of the viewport (40% tall). The camera
+     * only scrolls when Mario's center leaves the box, and then only
+     * just enough to put him back at the box edge.
+     *
+     * When Mario is STATIONARY, the camera is fully disengaged so the
+     * user can freely scroll anywhere. The instant he moves again, the
+     * deadzone re-engages from the user's current scroll position. */
     if (getPage() === marioPage && !dying && !transitioning) {
-      const top    = ci.scrollTop;
-      const bottom = top + ci.clientHeight;
-      const offTop    = m.y + MARIO_H < top;
-      const offBottom = m.y > bottom;
-      if (offTop || offBottom) {
-        cameraFollowing = true;
-      }
-      if (cameraFollowing) {
-        const targetTop = clamp(
-          m.y + MARIO_H / 2 - ci.clientHeight / 2,
-          0,
-          ci.scrollHeight - ci.clientHeight
-        );
-        /* Lerp toward target for smoothness */
-        const next = ci.scrollTop + (targetTop - ci.scrollTop) * 0.18;
-        ci.scrollTop = next;
-        /* Stop following once we're close to target (within 1px) */
-        if (Math.abs(targetTop - ci.scrollTop) < 1) {
-          ci.scrollTop = targetTop;
-          cameraFollowing = false;
+      const moving = Math.abs(m.vx) > 0.15 || Math.abs(m.vy) > 0.15 || !m.grounded;
+      if (moving) {
+        const vh         = ci.clientHeight;
+        const deadzoneH  = vh * 0.4;
+        const dzTop      = (vh - deadzoneH) / 2;
+        const dzBot      = dzTop + deadzoneH;
+        const marioCenterScreenY = m.y + MARIO_H / 2 - ci.scrollTop;
+
+        let target = ci.scrollTop;
+        if (marioCenterScreenY < dzTop) {
+          target = m.y + MARIO_H / 2 - dzTop;
+        } else if (marioCenterScreenY > dzBot) {
+          target = m.y + MARIO_H / 2 - dzBot;
+        }
+        target = clamp(target, 0, ci.scrollHeight - vh);
+
+        const diff = target - ci.scrollTop;
+        if (Math.abs(diff) > 0.5) {
+          /* Smooth lerp — faster when far, gentle when close */
+          ci.scrollTop += diff * 0.15;
         }
       }
     }
@@ -1081,9 +1134,19 @@
     canvas.style.left = m.x + 'px';
     canvas.style.top  = m.y + 'px';
 
+    /* During death, hide the canvas the moment it would leave the
+     * visible viewport. The canvas is position:absolute inside the
+     * scroll container, so a large `top` value would otherwise extend
+     * the scrollable area downward and let the user follow Mario. */
+    if (dying) {
+      const viewportBottom = ci.scrollTop + ci.clientHeight;
+      canvas.style.display = (m.y > viewportBottom) ? 'none' : '';
+    }
+
     /* pick frame */
     let frame;
     if (victory)            frame = FRAME.jump;
+    else if (dying)         frame = FRAME.jump;
     else if (!m.grounded)   frame = FRAME.jump;
     else if (Math.abs(m.vx) > 0.3) {
       frame = (Math.floor(tick / 8) % 2 === 0) ? FRAME.idle : FRAME.run;
@@ -1104,7 +1167,16 @@
 
     ctx.imageSmoothingEnabled = true;
     ctx.save();
-    if (m.facing === 'left') {
+    if (dying) {
+      /* Classic SMB1 death: sprite is flipped UPSIDE DOWN. We pivot
+       * around Mario's center so he tumbles in place. */
+      ctx.translate(MARIO_W / 2, MARIO_H / 2);
+      ctx.scale(1, -1);
+      ctx.translate(-MARIO_W / 2, -MARIO_H / 2);
+      ctx.drawImage(spriteImg,
+        frame.x, frame.y, frame.w, frame.h,
+        drawX, drawY, drawW, drawH);
+    } else if (m.facing === 'left') {
       ctx.scale(-1, 1);
       ctx.drawImage(spriteImg,
         frame.x, frame.y, frame.w, frame.h,
@@ -1456,12 +1528,23 @@
     if (dying) return;
     dying = true;
     dyingTimer = 0;
-    canvas?.classList.add('mario-dying');
+    deathSoundDone = false;
+    m.vx = 0;
+    m.vy = 0;
+
+    /* Play the death sound and flip deathSoundDone once it really finishes.
+     * death.mp3 has trailing silence after ~3.42s, so we use a timer based
+     * on the audible portion (start offset → end of audio content) rather
+     * than the file's full duration. */
     playSound('death');
+    const startOffset = SOUND_START.death ?? 0;
+    const AUDIBLE_END = 3.42;        // measured with silencedetect
+    const audibleMs   = Math.max(0, (AUDIBLE_END - startOffset) * 1000);
+    clearTimeout(deathSoundTimer);
+    deathSoundTimer = setTimeout(() => { deathSoundDone = true; }, audibleMs);
   }
 
   function respawnMario() {
-    canvas?.classList.remove('mario-dying');
     /* Switch to home page if not there */
     if (getPage() !== 'home' && window.navigateTo) window.navigateTo('home');
     marioPage = 'home';
@@ -1503,7 +1586,10 @@
 
   /* Cached audio pool — drop mp3/wav/ogg files in assets/mario/sounds/ */
   const SOUND_PATH = 'assets/mario/sounds/';
-  const SOUND_VOL  = { jump: 0.25, pipe: 0.30, victory: 0.40, stomp: 0.30, death: 0.35 };
+  const SOUND_VOL  = { jump: 0.15, pipe: 0.30, victory: 0.40, stomp: 0.30, death: 0.35 };
+  /* Leading-silence offsets (seconds) measured with `ffmpeg -af silencedetect`.
+   * Setting currentTime to this on play skips the dead air at the start. */
+  const SOUND_START = { jump: 0.1, pipe: 0.1, victory: 0.6, stomp: 0.0, death: 0.8 };
   const soundCache = {};
   function playSound(name) {
     try {
@@ -1513,7 +1599,7 @@
         soundCache[name] = a;
       }
       const s = soundCache[name];
-      s.currentTime = 0;
+      s.currentTime = SOUND_START[name] ?? 0;
       s.play().catch(() => {});
     } catch (e) {}
   }
