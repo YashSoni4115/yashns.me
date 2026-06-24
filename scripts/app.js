@@ -101,7 +101,15 @@ document.addEventListener("click", (e) => {
     const newPage = tab.dataset.page;
     setActive(newPage, currentPage);
     currentPage = newPage;
+    /* notify Mario game of manual page switch */
+    if (window.marioGame?.isActive()) window.marioGame.onPageSwitch();
   }
 });
 
 setActive(currentPage, null);
+
+/* allow Mario (and other scripts) to switch pages */
+window.navigateTo = function (page) {
+  setActive(page, currentPage);
+  currentPage = page;
+};
