@@ -10,24 +10,6 @@
   <link rel="stylesheet" href="styles/mario.css" />
   <link rel="icon" type="image/png" href="assets/icons/favicon.png">
 </head>
-<svg width="0" height="0" style="position:absolute; left:-9999px; top:-9999px;">
-  <filter id="genieWarp" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence
-      type="fractalNoise"
-      baseFrequency="0.012 0.03"
-      numOctaves="2"
-      seed="2"
-      result="noise"
-    />
-    <feDisplacementMap
-      in="SourceGraphic"
-      in2="noise"
-      scale="0"
-      xChannelSelector="R"
-      yChannelSelector="G"
-    />
-  </filter>
-</svg>
 
 <body class="desktop">
   <main class="window" role="application" aria-label="Yash Soni portfolio window">
@@ -104,7 +86,7 @@
 
             <div class="project-list">
               <article class="project-item">
-                <img src="assets/images/experience/manulife.webp" alt="Manulife logo" />
+                <img src="assets/images/experience/manulife.webp" alt="Manulife logo" loading="lazy" />
                 <div class="project-meta">
                   <h3>Manulife Financial — Data Scientist Intern</h3>
                   <p>
@@ -116,7 +98,7 @@
               </article>
 
               <article class="project-item">
-                <img src="assets/images/experience/laurier.webp" alt="Wilfrid Laurier logo" />
+                <img src="assets/images/experience/laurier.webp" alt="Wilfrid Laurier logo" loading="lazy" />
                 <div class="project-meta">
                   <h3>Wilfrid Laurier University — Machine Learning Research Assistant</h3>
                   <p>
@@ -128,7 +110,7 @@
               </article>
 
               <article class="project-item">
-                <img src="assets/images/experience/jh.webp" alt="John Hancock logo" />
+                <img src="assets/images/experience/jh.webp" alt="John Hancock logo" loading="lazy" />
                 <div class="project-meta">
                   <h3>John Hancock — Data Engineer Intern</h3>
                   <p>
@@ -140,7 +122,7 @@
               </article>
 
               <article class="project-item">
-                <img src="assets/images/experience/rbc.webp" alt="RBC logo" />
+                <img src="assets/images/experience/rbc.webp" alt="RBC logo" loading="lazy" />
                 <div class="project-meta">
                   <h3>RBC — Data Analyst Intern</h3>
                   <p>
@@ -152,7 +134,7 @@
               </article>
 
               <article class="project-item">
-                <img src="assets/images/experience/laurier.webp" alt="Wilfrid Laurier logo" />
+                <img src="assets/images/experience/laurier.webp" alt="Wilfrid Laurier logo" loading="lazy" />
                 <div class="project-meta">
                   <h3>Wilfrid Laurier University — Teaching Assistant</h3>
                   <p>
@@ -176,7 +158,7 @@
         <div class="project-list">
 
           <article class="project-item">
-            <img src="assets/images/projects/catanthropic.webp" alt="Catanthropic icon" />
+            <img src="assets/images/projects/catanthropic.webp" alt="Catanthropic icon" loading="lazy" />
             <div class="project-meta">
               <h3>Catanthropic</h3>
               <p>An LLM-powered model that plays Catan against you and talks through the game in natural language, merging strategic AI gameplay with real-time conversation.</p>
@@ -188,7 +170,7 @@
           </article>
           
           <article class="project-item">
-            <img src="assets/images/projects/cortex.png" alt="Cortex icon" />
+            <img src="assets/images/projects/cortex.png" alt="Cortex icon" loading="lazy" />
             <div class="project-meta">
               <h3>Cortex</h3>
               <p>AI-powered platform analyzing GitHub repositories, identifying technical strengths and knowledge gaps, and visualizing learning through a brain-inspired interface.</p>
@@ -201,7 +183,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/trade-risk.png" alt="Trade Risk icon" />
+            <img src="assets/images/projects/trade-risk.png" alt="Trade Risk icon" loading="lazy" />
             <div class="project-meta">
               <h3>Trade Risk</h3>
               <p>Scenario based tariff risk engine for Canadian export sectors, combining explainable AI with cached Gemini generated risk explanations.</p>
@@ -213,7 +195,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/genai-finance.webp" alt="GenAI Finance Assistant icon" />
+            <img src="assets/images/projects/genai-finance.webp" alt="GenAI Finance Assistant icon" loading="lazy" />
             <div class="project-meta">
               <h3>GenAI Finance Assistant</h3>
               <p>RAG-powered chatbot for querying finance data and terminology using LangChain, OpenAI, and vector similarity search over structured datasets.</p>
@@ -225,7 +207,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/optimal-workout.webp" alt="Optimal Workout Case Study icon" />
+            <img src="assets/images/projects/optimal-workout.webp" alt="Optimal Workout Case Study icon" loading="lazy" />
             <div class="project-meta">
               <h3>Optimal Workout Case Study</h3>
               <p>Training program optimization using workout logs to analyze volume, frequency, and progression patterns under recovery and fatigue constraints.</p>
@@ -234,7 +216,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/creditcard-fraud.webp" alt="Credit Card Fraud Detection icon" />
+            <img src="assets/images/projects/creditcard-fraud.webp" alt="Credit Card Fraud Detection icon" loading="lazy" />
             <div class="project-meta">
               <h3>Credit Card Fraud Detection (PyTorch)</h3>
               <p>End to end fraud detection under extreme class imbalance, evaluated with PR AUC, ROC AUC, threshold tuning, and top K review queue simulation.</p>
@@ -246,7 +228,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/leetcode.webp" alt="LeetCode Problems icon" />
+            <img src="assets/images/projects/leetcode.webp" alt="LeetCode Problems icon" loading="lazy" />
             <div class="project-meta">
               <h3>LeetCode Problems</h3>
               <p>Collection of solutions across difficulty levels, focused on clean implementations and fundamentals.</p>
@@ -258,7 +240,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/leetcode-to-git.webp" alt="LeetCode to Git icon" />
+            <img src="assets/images/projects/leetcode-to-git.webp" alt="LeetCode to Git icon" loading="lazy" />
             <div class="project-meta">
               <h3>LeetCode to Git</h3>
               <p>CLI that collects problem metadata and code, then automatically commits and pushes solutions to GitHub using a consistent structure.</p>
@@ -270,7 +252,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/census-dashboard.webp" alt="Census Insights Dashboard icon" />
+            <img src="assets/images/projects/census-dashboard.webp" alt="Census Insights Dashboard icon" loading="lazy" />
             <div class="project-meta">
               <h3>Census Insights Dashboard</h3>
               <p>Interactive dashboard using Dash callbacks and dropdown filters to explore census style demographics in Jupyter.</p>
@@ -282,7 +264,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/uber-analysis.webp" alt="Uber Analysis icon" />
+            <img src="assets/images/projects/uber-analysis.webp" alt="Uber Analysis icon" loading="lazy" />
             <div class="project-meta">
               <h3>Uber Analysis</h3>
               <p>Trip volume analysis by day and month in R, including interactive DT tables and date feature work to surface demand patterns.</p>
@@ -294,7 +276,7 @@
           </article>
 
           <article class="project-item">
-            <img src="assets/images/projects/colosseum-fighters.webp" alt="Colosseum Fighters icon" />
+            <img src="assets/images/projects/colosseum-fighters.webp" alt="Colosseum Fighters icon" loading="lazy" />
             <div class="project-meta">
               <h3>Colosseum Fighters</h3>
               <p>Ancient Rome themed fighting game built with Pygame, structured into modules for entities, UI rendering, and asset loading.</p>
@@ -321,7 +303,7 @@
               <button class="carousel-btn prev" type="button" aria-label="Previous photo" data-carousel-prev>◀</button>
 
               <figure class="carousel-frame">
-                <img class="carousel-img" src="assets/images/carousel/01_friends.jpg" alt="Hanging out with friends" data-carousel-img />
+                <img class="carousel-img" src="assets/images/carousel/01_friends.jpg" alt="Hanging out with friends" data-carousel-img loading="lazy" />
                 <figcaption class="carousel-cap" data-carousel-cap>Hanging out with friends</figcaption>
               </figure>
 
@@ -343,21 +325,21 @@
             <div class="contact-items">
               
               <div class="contact-item">
-                <img src="assets/icons/email.png" alt="Email icon" />
+                <img src="assets/icons/email.png" alt="Email icon" loading="lazy" />
                 <a href="mailto:yashsonig@gmail.com">
                   yashsonig@gmail.com
                 </a>
               </div>
 
               <div class="contact-item" id="contact-github">
-                <img src="assets/icons/github.png" alt="GitHub icon" />
+                <img src="assets/icons/github.png" alt="GitHub icon" loading="lazy" />
                 <a href="https://github.com/YashSoni4115" target="_blank" rel="noreferrer">
                   github.com/YashSoni4115
                 </a>
               </div>
             
               <div class="contact-item">
-                <img src="assets/icons/linkedin.png" alt="LinkedIn icon" />
+                <img src="assets/icons/linkedin.png" alt="LinkedIn icon" loading="lazy" />
                 <a href="https://www.linkedin.com/in/yash4115/" target="_blank" rel="noreferrer">
                   linkedin.com/in/yash4115
                 </a>
