@@ -145,6 +145,7 @@
   let goombasByPage   = {};    // { pageName: Array<goomba> } — persistent per page
   let dying           = false;
   let dyingTimer      = 0;
+  let frameCiRect     = null;  // .client-inner rect cached once per update() tick
   let deathSoundDone  = false;  // true once the death audio has finished playing
   let deathSoundTimer = null;   // setTimeout id for death-audio-end watcher
 
@@ -335,7 +336,7 @@
 
   /** Position pipes in scroll-world coordinates */
   function positionPipes() {
-    const ciRect = ci.getBoundingClientRect();
+    const ciRect = frameCiRect || ci.getBoundingClientRect();
 
     for (const p of pipeEls) {
       if (p.anchor) {
@@ -469,6 +470,18 @@
     /* If Mario isn't on the active page, freeze him */
     if (getPage() !== marioPage) return;
 
+    /* Cache DOM reads once per frame — collidePipes/collidePipeTops/
+     * collideHorizPipeTops/checkPipes/isOnVerticalPipe previously each
+     * called getPipeWorldRects() independently (5x/frame), and platforms/
+     * barriers were re-queried too. Every call does getBoundingClientRect()
+     * on multiple elements, which forces a synchronous layout reflow —
+     * doing it once and reusing the result avoids redundant reflows. */
+    const ciRect    = ci.getBoundingClientRect();
+    const pipeRects = getPipeWorldRects(ciRect);
+    const platforms = getPlatforms(ciRect);
+    const barriers  = getBarriers(ciRect);
+    frameCiRect = ciRect;
+
     /* ── input ── */
     if (keys['ArrowLeft'])  { m.vx -= MOVE_ACC; m.facing = 'left';  }
     if (keys['ArrowRight']) { m.vx += MOVE_ACC; m.facing = 'right'; }
@@ -478,7 +491,7 @@
       playSound('jump');
     }
     if (keys['ArrowDown'] && m.grounded && dropThrough === 0) {
-      if (!isOnVerticalPipe()) {
+      if (!isOnVerticalPipe(pipeRects)) {
         dropThrough = 10;
         m.grounded  = false;
         m.y        += 4;
@@ -506,22 +519,22 @@
     m.x = clamp(m.x, 0, ci.scrollWidth - MARIO_W);
 
     /* ── pipe solid collision ── */
-    collidePipes(prevX, prevY);
+    collidePipes(prevX, prevY, pipeRects);
 
     /* ── platform collision ── */
     m.grounded = false;
 
     /* barrier collision (solid from all sides) */
-    collideBarriers(prevX, prevY);
+    collideBarriers(prevX, prevY, barriers);
 
     /* pipe tops (vertical pipes only) */
-    collidePipeTops(prevY);
+    collidePipeTops(prevY, pipeRects);
 
     /* horizontal pipe tops (can stand on them) */
-    collideHorizPipeTops(prevY);
+    collideHorizPipeTops(prevY, pipeRects);
 
     /* page element platforms */
-    const plats = getPlatforms();
+    const plats = platforms;
     if (dropThrough > 0) { /* skip */ }
     else for (const p of plats) {
       if (
@@ -550,18 +563,18 @@
     if (m.y < 0) { m.y = 0; m.vy = Math.max(0, m.vy); }
 
     /* ── pipe warp check ── */
-    checkPipes();
+    checkPipes(pipeRects);
 
     /* ── victory ── */
-    checkVictory();
+    checkVictory(ciRect);
   }
 
   /* ────── platforms (world coords) ────── */
 
-  function getPlatforms() {
+  function getPlatforms(ciRect) {
     const page = document.querySelector('.page.is-active');
     if (!page) return [];
-    const ciRect = ci.getBoundingClientRect();
+    if (!ciRect) ciRect = ci.getBoundingClientRect();
     const pageId = page.id;
 
     /* Standard platforms (land on top edge) — skip .panel on extras,
@@ -595,10 +608,10 @@
     return plats;
   }
 
-  function getBarriers() {
+  function getBarriers(ciRect) {
     const page = document.querySelector('.page.is-active');
     if (!page) return [];
-    const ciRect = ci.getBoundingClientRect();
+    if (!ciRect) ciRect = ci.getBoundingClientRect();
     return Array.from(page.querySelectorAll(BARRIER_SEL)).map(el => {
       /* Compute tight bounds from visible children so flex containers
          like .carousel-dots and .form-actions don't extend across the
@@ -631,8 +644,8 @@
   }
 
   /** Solid barrier collision – blocks Mario from all sides */
-  function collideBarriers(prevX, prevY) {
-    const barriers = getBarriers();
+  function collideBarriers(prevX, prevY, barriers) {
+    if (!barriers) barriers = getBarriers();
     for (const b of barriers) {
       /* Check overlap */
       if (
@@ -690,9 +703,9 @@
    * Get collision info for each pipe in WORLD (scroll) coords.
    * Handles both vertical and horizontal orientations.
    */
-  function getPipeWorldRects() {
+  function getPipeWorldRects(ciRect) {
     const rects = [];
-    const ciRect = ci.getBoundingClientRect();
+    if (!ciRect) ciRect = ci.getBoundingClientRect();
 
     for (const p of pipeEls) {
       const r = p.el.getBoundingClientRect();
@@ -767,9 +780,9 @@
   }
 
   /** Is Mario standing on a vertical pipe? (for drop-through check) */
-  function isOnVerticalPipe() {
+  function isOnVerticalPipe(pipes) {
     if (!ci) return false;
-    const pipes = getPipeWorldRects();
+    if (!pipes) pipes = getPipeWorldRects();
     for (const p of pipes) {
       if (p.orient !== 'vertical') continue;
       if (
@@ -784,8 +797,8 @@
   }
 
   /** Vertical pipe: stand on rim */
-  function collidePipeTops(prevY) {
-    const pipes = getPipeWorldRects();
+  function collidePipeTops(prevY, pipes) {
+    if (!pipes) pipes = getPipeWorldRects();
     for (const p of pipes) {
       if (p.orient !== 'vertical') continue;
       if (
@@ -803,8 +816,8 @@
   }
 
   /** Horizontal pipe: stand on top */
-  function collideHorizPipeTops(prevY) {
-    const pipes = getPipeWorldRects();
+  function collideHorizPipeTops(prevY, pipes) {
+    if (!pipes) pipes = getPipeWorldRects();
     for (const p of pipes) {
       if (p.orient !== 'horizontal') continue;
       if (
@@ -822,8 +835,8 @@
   }
 
   /** Solid side collision for all pipes */
-  function collidePipes(prevX, prevY) {
-    const pipes = getPipeWorldRects();
+  function collidePipes(prevX, prevY, pipes) {
+    if (!pipes) pipes = getPipeWorldRects();
     for (const p of pipes) {
       if (p.orient === 'vertical') {
         /* Skip if Mario was above (landing) */
@@ -877,11 +890,11 @@
   }
 
   /** Warp check */
-  function checkPipes() {
+  function checkPipes(pipes) {
     if (!canvas || pipeCooldown > 0) return;
     const page = getPage();
     const idx  = PAGES.indexOf(page);
-    const pipes = getPipeWorldRects();
+    if (!pipes) pipes = getPipeWorldRects();
 
     for (let i = 0; i < pipes.length; i++) {
       const p = pipes[i];
@@ -1020,12 +1033,12 @@
 
   /* ────── victory ────── */
 
-  function checkVictory() {
+  function checkVictory(ciRect) {
     if (getPage() !== 'contact' || victory || !flagEl || !canvas) return;
     if (victoryCooldown > 0) return;
 
     /* Mystery box: Mario must hit it from BELOW (head bonk) */
-    const ciRect = ci.getBoundingClientRect();
+    if (!ciRect) ciRect = ci.getBoundingClientRect();
     const fRect  = flagEl.getBoundingClientRect();
     const boxX   = fRect.left - ciRect.left + ci.scrollLeft;
     const boxY   = fRect.top  - ciRect.top  + ci.scrollTop;
